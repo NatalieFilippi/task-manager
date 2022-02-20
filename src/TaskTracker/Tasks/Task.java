@@ -1,10 +1,14 @@
+package TaskTracker.Tasks;
+
+import TaskTracker.TaskStatus;
+
 public class Task {
     protected String name;      //название задачи
     protected String detail;    //описание задачи
-    protected Status status;    //статус задачи
+    protected TaskStatus status;    //статус задачи
+    protected int id;           //id задачи
 
-
-    public Task(String name, String detail, Status status) {
+    public Task(String name, String detail, TaskStatus status) {
         this.name = name;
         this.detail = detail;
         this.status = status;
@@ -33,10 +37,27 @@ public class Task {
     @Override
     public String toString() {
 
-        return  "Task{" +
+        return  "Main.Task{" +
                 "name='" + name + '\'' +
                 ", detail='" + detail + '\'' +
-                ", status=" + status + '}' + "\n";
+                ", status='" + status + '}' + "\n";
 
     }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public TaskStatus getStatus() {
+        return this.status;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setStatus(TaskStatus status) {
+        this.status = status;
+    }
 }
+

@@ -1,18 +1,23 @@
+package TaskTracker.Tasks;
+
+
+import TaskTracker.TaskStatus;
+
 public class Subtask extends Task{
 
     private int epicID;  //ID эпика
 
-    public Subtask(String name, String detail, Status status, int epicID) {
+    public Subtask(String name, String detail, TaskStatus status, int epicID) {
         super(name, detail, status);
         this.epicID = epicID;
     }
 
     @Override
     public String toString() {
-        return  "Subtask{" +
+        return  "Main.Subtask{" +
                 "name='" + name + '\'' +
                 ", detail='" + detail + '\'' +
-                ", status=" + status + '\'' +
+                ", status='" + status + '\'' +
                 ", epicID=" + epicID + '}' + "\n";
     }
 
