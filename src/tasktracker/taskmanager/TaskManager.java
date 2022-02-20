@@ -1,9 +1,9 @@
-package TaskTracker.TaskManager;
+package tasktracker.taskmanager;
 
-import TaskTracker.TaskStatus;
-import TaskTracker.Tasks.Epic;
-import TaskTracker.Tasks.Subtask;
-import TaskTracker.Tasks.Task;
+import tasktracker.TaskStatus;
+import tasktracker.tasks.Epic;
+import tasktracker.tasks.Subtask;
+import tasktracker.tasks.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,15 +24,15 @@ public class TaskManager {
     //~~~~~~~~~ Получить список задач + ~~~~~~~~~~~
 
     public HashMap<Integer, Task> getTaskMap(){      //Получить список всех тасков
-        return taskMap;
+        return new HashMap<Integer, Task>(taskMap);
     }
 
     public HashMap<Integer, Epic> getEpicMap(){      //Получить список всех эпиков
-        return epicMap;
+        return new HashMap<Integer, Epic>(epicMap);
     }
 
     public HashMap<Integer, Subtask> getSubtaskMap(){   //Получить список всех субтасков
-        return subtaskMap;
+        return new HashMap<Integer, Subtask>(subtaskMap);
     }
 
     //~~~~~~~~~ Удалить все задачи + ~~~~~~~~~~~

@@ -1,6 +1,6 @@
-package TaskTracker.Tasks;
+package tasktracker.tasks;
 
-import TaskTracker.TaskStatus;
+import tasktracker.TaskStatus;
 
 public class Task {
     protected String name;      //название задачи
