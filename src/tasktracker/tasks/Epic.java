@@ -3,6 +3,7 @@ package tasktracker.tasks;
 import tasktracker.TaskStatus;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Epic extends Task{
 
@@ -46,13 +47,6 @@ public class Epic extends Task{
     }
 
     public ArrayList<Subtask> getSubtasks() {
-        return subtasks;
-    }
-
-    //я перенесла этот метод в эпик, но тогда он становится полной копией метода getSubtasks().
-    //или я неправильно поняла Ваш комментарий?
-
-    public ArrayList<Subtask> getSubtaskByEpic(){  //Получить список подзадач определённого эпика
-        return subtasks;
+        return new ArrayList<Subtask>(subtasks);
     }
 }

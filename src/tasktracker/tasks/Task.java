@@ -2,7 +2,7 @@ package tasktracker.tasks;
 
 import tasktracker.TaskStatus;
 
-public class Task {
+public class Task{
     protected String name;      //название задачи
     protected String detail;    //описание задачи
     protected TaskStatus status;    //статус задачи
