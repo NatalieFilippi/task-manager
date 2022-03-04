@@ -3,10 +3,10 @@ package tasktracker.tasks;
 import tasktracker.TaskStatus;
 
 public class Task{
-    protected String name;      //название задачи
-    protected String detail;    //описание задачи
-    protected TaskStatus status;    //статус задачи
-    protected int id;           //id задачи
+    private String name;      //название задачи
+    private String detail;    //описание задачи
+    private TaskStatus status; //статус задачи
+    private long id;           //id задачи, исправила
 
     public Task(String name, String detail, TaskStatus status) {
         this.name = name;
@@ -38,13 +38,13 @@ public class Task{
     public String toString() {
 
         return  "Main.Task{" +
-                "name='" + name + '\'' +
-                ", detail='" + detail + '\'' +
-                ", status='" + status + '}' + "\n";
+                "name='" + getName() + '\'' +
+                ", detail='" + getDetail() + '\'' +
+                ", status='" + getStatus() + '}' + "\n";
 
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -52,12 +52,28 @@ public class Task{
         return this.status;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
     public void setStatus(TaskStatus status) {
         this.status = status;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDetail(String detail) {
+        this.detail = detail;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDetail() {
+        return detail;
     }
 }
 

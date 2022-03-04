@@ -1,6 +1,5 @@
 package tasktracker.taskmanager;
 import historymanager.InMemoryHistoryManager;
-import historymanager.HistoryManager;
 
 public class Managers {
 

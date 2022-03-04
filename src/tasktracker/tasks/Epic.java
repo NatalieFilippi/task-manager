@@ -17,9 +17,9 @@ public class Epic extends Task{
     @Override
     public String toString() {
         return  "Main.Epic{" +
-                "name='" + name + '\'' +
-                ", detail='" + detail + '\'' +
-                ", status='" + status + '\'' +
+                "name='" + getName() + '\'' +
+                ", detail='" + getDetail() + '\'' +
+                ", status='" + getStatus() + '\'' +
                 ", subtasks=" + subtasks + '}' + "\n";
     }
 
@@ -27,17 +27,17 @@ public class Epic extends Task{
     public int hashCode() {
 
         int hash = 17;
-        if (name != null) {
-            hash = hash + name.hashCode();
+        if (getName() != null) {
+            hash = hash + getName().hashCode();
         }
         hash = hash * 31;
 
-        if (detail != null) {
-            hash = hash + detail.hashCode();
+        if (getDetail() != null) {
+            hash = hash + getDetail().hashCode();
         }
 
-        if (status != null) {
-            hash = hash + status.hashCode();
+        if (getStatus() != null) {
+            hash = hash + getStatus().hashCode();
         }
         return hash;
     }
@@ -47,6 +47,6 @@ public class Epic extends Task{
     }
 
     public ArrayList<Subtask> getSubtasks() {
-        return new ArrayList<Subtask>(subtasks);
+        return subtasks;
     }
 }

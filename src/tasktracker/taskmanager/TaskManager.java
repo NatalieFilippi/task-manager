@@ -4,17 +4,18 @@ import tasktracker.tasks.Epic;
 import tasktracker.tasks.Subtask;
 import tasktracker.tasks.Task;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public interface TaskManager {
 
     //~~~~~~~~~ Получить список задач + ~~~~~~~~~~~
 
-    public HashMap<Integer, Task> getTaskMap();
+    public ArrayList<Task> getTaskMap();
 
-    public HashMap<Integer, Epic> getEpicMap();
+    public ArrayList<Epic> getEpicMap();
 
-    public HashMap<Integer, Subtask> getSubtaskMap();
+    public ArrayList<Subtask> getSubtaskMap();
 
     //~~~~~~~~~ Удалить все задачи + ~~~~~~~~~~~
 
@@ -26,11 +27,11 @@ public interface TaskManager {
 
     //~~~~~~~~~ Получить по идентификатору + ~~~~~~~~~~~
 
-    public Task getTaskById(int id);
+    public Task getTaskById(long id);
 
-    public Epic getEpicByID(int id);
+    public Epic getEpicByID(long id);
 
-    public Subtask getSubtaskByID(int id);
+    public Subtask getSubtaskByID(long id);
 
     //~~~~~~~~~ Создать задачу + ~~~~~~~~~~~
 
@@ -50,11 +51,11 @@ public interface TaskManager {
 
     //~~~~~~~~~ Удалить по идентификатору + ~~~~~~~~~~~
 
-    public void deleteByIDTask(int id);
+    public void deleteByIDTask(long id);
 
-    public void deleteByIDEpic(int id);
+    public void deleteByIDEpic(long id);
 
-    public void deleteByIDSubtask(int id);
+    public void deleteByIDSubtask(long id);
 
     //~~~~~~~~~~~~~~~~ История ~~~~~~~~~~~~~~~~~~~~~~~~~
 

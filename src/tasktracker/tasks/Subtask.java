@@ -5,9 +5,9 @@ import tasktracker.TaskStatus;
 
 public class Subtask extends Task{
 
-    private int epicID;  //ID эпика
+    private long epicID;  //ID эпика
 
-    public Subtask(String name, String detail, TaskStatus status, int epicID) {
+    public Subtask(String name, String detail, TaskStatus status, long epicID) {
         super(name, detail, status);
         this.epicID = epicID;
     }
@@ -15,9 +15,9 @@ public class Subtask extends Task{
     @Override
     public String toString() {
         return  "Main.Subtask{" +
-                "name='" + name + '\'' +
-                ", detail='" + detail + '\'' +
-                ", status='" + status + '\'' +
+                "name='" + getName() + '\'' +
+                ", detail='" + getDetail() + '\'' +
+                ", status='" + getStatus() + '\'' +
                 ", epicID=" + epicID + '}' + "\n";
     }
 
@@ -25,22 +25,22 @@ public class Subtask extends Task{
     public int hashCode() {
 
         int hash = 17;
-        if (name != null) {
-            hash = hash + name.hashCode();
+        if (getName() != null) {
+            hash = hash + getName().hashCode();
         }
         hash = hash * 31;
 
-        if (detail != null) {
-            hash = hash + detail.hashCode();
+        if (getDetail() != null) {
+            hash = hash + getDetail().hashCode();
         }
 
-        if (status != null) {
-            hash = hash + status.hashCode();
+        if (getStatus() != null) {
+            hash = hash + getStatus().hashCode();
         }
-        return hash + epicID;
+        return hash + (int) epicID;
     }
 
-    public int getEpicID() {
+    public long getEpicID() {
         return epicID;
     }
 }
