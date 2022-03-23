@@ -140,14 +140,17 @@ public class InMemoryTaskManager implements TaskManager{
     @Override
     public void deleteByIDTask(long id){       //Удалить по идентификатору таск
         taskMap.remove(id);
+        history.remove(id);
     }
     @Override
     public void deleteByIDEpic(long id){       //Удалить по идентификатору эпик
         ArrayList<Subtask> sbEpic = epicMap.get(id).getSubtasks();
         for (Subtask sb : sbEpic) {
             subtaskMap.remove(sb.getId());
+            history.remove(sb.getId());
         }
         epicMap.remove(id);
+        history.remove(id);
     }
     @Override
     public void deleteByIDSubtask(long id){    //Удалить по идентификатору субтаск
@@ -156,6 +159,7 @@ public class InMemoryTaskManager implements TaskManager{
         epicMap.get(epicID).getSubtasks().remove(subtask);//удалить субтаск из эпика
         changeEpicStatus(epicMap.get(epicID));  //обновить статус эпика
         subtaskMap.remove(id);
+        history.remove(id);
     }
 
     //~~~~~~~~~~~~~~~~ История ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -170,13 +174,6 @@ public class InMemoryTaskManager implements TaskManager{
         return ++incrementalId;
     }
 
-
-    /* Я хотела изначально сделать отдельный метод обновления статуса эпика, но меня смутила эта формулировка
-    в ТЗ:
-    "Фраза «информация приходит вместе с информацией по задаче» означает, что не существует отдельного
-    метода, который занимался бы только обновлением статуса задачи. Вместо этого статус задачи обновляется
-    вместе с полным обновлением задачи."
-    Только сейчас дошло, что имеется в виду, что у пользователя нет функции обновить только статус)*/
 
     private void changeEpicStatus(Epic epic) { //метод обновления статуса эпика
         if (epic.getSubtasks().isEmpty()) { //если у эпика не осталось подзадач,
