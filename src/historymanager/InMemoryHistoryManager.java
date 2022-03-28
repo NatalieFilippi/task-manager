@@ -7,15 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager{
-    //private final LinkedList<Node> history;
     private final HashMap<Long,Node> nodeTable;
-    private final static byte historySize = 10;
     private Node head;
     private Node tail;
-    private int size = 0;
 
     public InMemoryHistoryManager() {
-        //InMemoryHistoryManager history = new InMemoryHistoryManager();
         nodeTable = new HashMap<>();
     }
 
@@ -39,15 +35,9 @@ public class InMemoryHistoryManager implements HistoryManager{
         else
             oldTail.setNext(newNode);
 
-        size++;
-
         //записать соответствие в таблицу
         nodeTable.put(task.getId(), newNode);
 
-        //если в списке более 10 записей, удалить первую (по условию ТЗ 3-го спринта)
-        if (size > historySize) {
-            removeNode(head);
-        }
     }
 
     @Override
@@ -75,8 +65,7 @@ public class InMemoryHistoryManager implements HistoryManager{
         } else {
             prev.setNext(next);
         }
-
-        size--;
+        
         node.setPrev(null);
         node.setNext(null);
         node.setData(null);
