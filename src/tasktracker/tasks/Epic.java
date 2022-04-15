@@ -9,9 +9,10 @@ public class Epic extends Task{
 
     private ArrayList<Subtask> subtasks;  //список субтасков эпика
 
-    public Epic(String name, String detail, TaskStatus status) {
-        super(name, detail, status);
+    public Epic(String name, String detail) {
+        super(name, detail);
         subtasks = new ArrayList<>();
+        setStatus(TaskStatus.NEW);
     }
 
     @Override
@@ -57,8 +58,9 @@ public class Epic extends Task{
 
         String[] split = line.split(",");
 
-        Epic newEpic = new Epic(split[2], split[4], TaskStatus.getStatus(split[3]));
+        Epic newEpic = new Epic(split[2], split[4]);
         newEpic.setId(Long.parseLong(split[0]));
+        newEpic.setStatus(TaskStatus.getStatus(split[3]));
         return newEpic;
 
     }

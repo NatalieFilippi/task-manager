@@ -93,7 +93,10 @@ public class InMemoryHistoryManager implements HistoryManager{
         for (Task task : tasks) {
             line += task.getId() +",";
         }
-        return line.substring(0,line.length()-1); //чтобы не передавать последнюю запятую
+        if (!line.isEmpty()) {
+            line = line.substring(0,line.length()-1);
+        }
+        return line; //чтобы не передавать последнюю запятую
     }
 
 

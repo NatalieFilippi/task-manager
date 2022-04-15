@@ -8,8 +8,7 @@ import tasktracker.tasks.Task;
 
 public class Main {
     public static void main(String[] args) {
-
-        TaskManager taskManager = new Managers().getDefault();
+        TaskManager taskManager = Managers.getDefault();
         //InMemoryTaskManager taskManager = new InMemoryTaskManager();
         //создаём 2 простые задачи
         Task task1 = new Task("Записать Катю к врачу",
@@ -21,7 +20,7 @@ public class Main {
 
         //создаём эпик с двумя подзадачами
         Epic epic1 = new Epic("Связать шапку",
-                "ОГ 55, с двумя отворотами, макушка клиньями",TaskStatus.NEW );
+                "ОГ 55, с двумя отворотами, макушка клиньями");
         Subtask subtask11 = new Subtask("Выбрать пряжу",
                 "Лучше чистый меринос, но смесовка тоже пойдет", TaskStatus.NEW, 3);
         Subtask subtask12 = new Subtask("Связать изделие",
@@ -35,7 +34,7 @@ public class Main {
 
         //создаём эпик с одной подзадачей
         Epic epic2 = new Epic("Сходить на фотосессию",
-                "семейная фотосессия",TaskStatus.NEW );
+                "семейная фотосессия");
 //        Subtask subtask21 = new Subtask("Выбрать фотографа",
 //                "Люська советует @best_of_the_best_photo, поиск начать с него", TaskStatus.NEW, 6);
         taskManager.createEpic(epic2);

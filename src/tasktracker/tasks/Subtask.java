@@ -3,6 +3,8 @@ package tasktracker.tasks;
 
 import tasktracker.TaskStatus;
 
+import java.util.Objects;
+
 public class Subtask extends Task{
 
     private long epicID;  //ID эпика
@@ -38,6 +40,18 @@ public class Subtask extends Task{
             hash = hash + getStatus().hashCode();
         }
         return hash + (int) epicID;
+    }
+
+    @Override
+    public boolean equals(Object o) { // добавили и переопределили equals
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Subtask subtask = (Subtask) o;
+        return Objects.equals(getName(), subtask.getName()) &&
+                Objects.equals(getDetail(), subtask.getDetail()) &&
+                Objects.equals(getStatus(), subtask.getStatus()) &&
+                Objects.equals(getId(), subtask.getId()) &&
+                Objects.equals(getEpicID(), subtask.getEpicID());
     }
 
     public long getEpicID() {

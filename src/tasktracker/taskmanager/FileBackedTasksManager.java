@@ -1,5 +1,6 @@
 package tasktracker.taskmanager;
 
+import historymanager.InMemoryHistoryManager;
 import tasktracker.TaskStatus;
 import tasktracker.tasks.Epic;
 import tasktracker.tasks.Subtask;
@@ -21,6 +22,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
 
     public FileBackedTasksManager(File fileBacked) {
 
+        history = new InMemoryHistoryManager();
         this.fileBacked = fileBacked;
         if (fileBacked.exists()) {
             loadFromFile();
@@ -40,10 +42,10 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
                 "Тема космос", TaskStatus.NEW);
         taskManager.createTask(task2);
         Epic epic1 = new Epic("Горячий клей",
-                "Заклеить всё на свете",TaskStatus.NEW );
+                "Заклеить всё на свете");
         Subtask subtask11 = new Subtask("Брошь",
-                "Валяется на верхней полке", TaskStatus.NEW, 12);
-        Subtask subtask12 = new Subtask("Магнитик корову",
+                "Валяется на верхней полке", TaskStatus.NEW, 12); //поменять id эпика на 3, если
+        Subtask subtask12 = new Subtask("Магнитик корову",              //запускать с пустым файлом
                 "Голова в игрушках", TaskStatus.NEW, 12);
         Subtask subtask13 = new Subtask("Рамку для фотографий",
                 "И убрать подальше", TaskStatus.NEW, 12);
@@ -53,48 +55,50 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         taskManager.createSubtask(subtask13);
 
         taskManager.getEpicByID(3);
-        taskManager.getTaskById(11);
+        taskManager.getTaskById(11);    
         taskManager.getSubtaskByID(13);
         taskManager.getEpicByID(7);
         taskManager.getTaskById(10);
         taskManager.getSubtaskByID(15);
         taskManager.getEpicByID(12);
 
+        boolean check = verifyData();
 
         FileBackedTasksManager taskManager2 = new FileBackedTasksManager(file);
-        //System.out.println(taskManager.getTaskMap());
     }
 
     private void loadFromFile(){
         long maxId = 0;
         List<String> content = readFileContentsOrNull();
-        for (int k = 1; k < content.size()-1; k++) {
-            String[] line = content.get(k).split(",");
-            if (line[1].equals("TASK")) {
-                Task task = Task.fromFile(content.get(k));
-                taskMap.put(task.getId(), task);
-                if (task.getId() > maxId) {
-                    maxId = task.getId();
+        if (!content.isEmpty()) {
+            for (int k = 1; k < content.size() - 1; k++) {
+                String[] line = content.get(k).split(",");
+                if (line[1].equals("TASK")) {
+                    Task task = Task.fromFile(content.get(k));
+                    taskMap.put(task.getId(), task);
+                    if (task.getId() > maxId) {
+                        maxId = task.getId();
+                    }
+                } else if (line[1].equals("EPIC")) {
+                    Epic epic = Epic.fromFile(content.get(k));
+                    epicMap.put(epic.getId(), epic);
+                    if (epic.getId() > maxId) {
+                        maxId = epic.getId();
+                    }
+                } else if (line[1].equals("SUBTASK")) {
+                    Subtask subtask = Subtask.fromFile(content.get(k));
+                    subtaskMap.put(subtask.getId(), subtask);
+                    if (subtask.getId() > maxId) {
+                        maxId = subtask.getId();
+                    }
+                    Epic currentEpic = epicMap.get(subtask.getEpicID());
+                    currentEpic.setEpicList(subtask);
                 }
-            } else if (line[1].equals("EPIC")) {
-                Epic epic = Epic.fromFile(content.get(k));
-                epicMap.put(epic.getId(), epic);
-                if (epic.getId() > maxId) {
-                    maxId = epic.getId();
-                }
-            } else if (line[1].equals("SUBTASK")) {
-                Subtask subtask = Subtask.fromFile(content.get(k));
-                subtaskMap.put(subtask.getId(), subtask);
-                if (subtask.getId() > maxId) {
-                    maxId = subtask.getId();
-                }
-                Epic currentEpic = epicMap.get(subtask.getEpicID());
-                currentEpic.setEpicList(subtask);
-            }
 
+            }
+            incrementalId = (int) maxId;
+            historyFromString(content.get(content.size() - 1));
         }
-        incrementalId = (int) maxId;
-        historyFromString(content.get(content.size()-1));
     }
 
     private void save() {
@@ -161,6 +165,66 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         return null;
     }
 
+    private static boolean verifyData() {
+        List<String> content = readFileContentsOrNull();
+        boolean b1 = verifyHistory(content.get(content.size() - 1));
+        boolean b2 = verifyTasks(content);
+        return b1 && b2;
+    }
+
+    private static boolean verifyTasks(List<String> content) {
+
+        if (content.isEmpty() && taskMap.isEmpty() && epicMap.isEmpty() && subtaskMap.isEmpty()) {
+            return true;
+        }
+        for (int k = 1; k < content.size() - 1; k++) {
+            String[] line = content.get(k).split(",");
+
+            if (line[1].equals("TASK")) {
+                Task task = Task.fromFile(content.get(k));
+                if (taskMap.containsKey(task.getId())) {
+                    if (!taskMap.get(task.getId()).equals(task)) {
+                        return false;
+                    }
+                }
+
+                } else if (line[1].equals("EPIC")) {
+                    Epic epic = Epic.fromFile(content.get(k));
+                    if (epicMap.containsKey(epic.getId())) {
+                        if (!epicMap.get(epic.getId()).equals(epic)) {
+                            return false;
+                        }
+                    }
+
+                } else if (line[1].equals("SUBTASK")) {
+                    Subtask subtask = Subtask.fromFile(content.get(k));
+                    if (subtaskMap.containsKey(subtask.getId())) {
+                        if (!subtaskMap.get(subtask.getId()).equals(subtask)) {
+                            return false;
+                        }
+                    }
+                }
+
+            }
+        return true;
+    }
+
+    private static boolean verifyHistory(String historyFile) {
+
+        List<Task> historyMemory = history.getHistory();
+
+        String[] split = historyFile.split(",");
+
+        if (historyMemory.size() != split.length) {
+            return false;
+        }
+        for (int i=0; i < historyMemory.size(); i++) {
+            if (Long.parseLong(split[i]) != historyMemory.get(i).getId()) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     @Override
     public ArrayList<Task> getTaskMap() {
@@ -197,23 +261,32 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
 
     @Override
     public Task getTaskById(long id) {
-        history.add(taskMap.get(id));
+        Task task = taskMap.get(id);
+        if(task != null) {
+            history.add(task);
+        }
         save();
-        return taskMap.get(id);
+        return task;
     }
 
     @Override
     public Epic getEpicByID(long id) {
-        history.add(epicMap.get(id));
+        Epic epic = epicMap.get(id);
+        if (epic != null) {
+            history.add(epic);
+        }
         save();
-        return epicMap.get(id);
+        return epic;
     }
 
     @Override
     public Subtask getSubtaskByID(long id) {
-        history.add(subtaskMap.get(id));
+        Subtask subtask = subtaskMap.get(id);
+        if (subtask != null) {
+            history.add(subtask);
+        }
         save();
-        return subtaskMap.get(id);
+        return subtask;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package tasktracker.tasks;
 
 import tasktracker.TaskStatus;
+import java.util.Objects;
 
 public class Task{
     private String name;      //название задачи
@@ -12,6 +13,12 @@ public class Task{
         this.name = name;
         this.detail = detail;
         this.status = status;
+        //ID присвоит менеджер
+    }
+
+    public Task(String name, String detail) {
+        this.name = name;
+        this.detail = detail;
         //ID присвоит менеджер
     }
 
@@ -32,6 +39,17 @@ public class Task{
             hash = hash + status.hashCode();
         }
         return hash;
+    }
+
+    @Override
+    public boolean equals(Object o) { // добавили и переопределили equals
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+        return Objects.equals(name, task.name) &&
+                Objects.equals(detail, task.detail) &&
+                Objects.equals(status, task.status) &&
+                Objects.equals(id, task.id);
     }
 
     @Override
