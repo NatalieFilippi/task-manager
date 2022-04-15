@@ -12,7 +12,6 @@ public class Epic extends Task{
     public Epic(String name, String detail) {
         super(name, detail);
         subtasks = new ArrayList<>();
-        setStatus(TaskStatus.NEW);
     }
 
     @Override
@@ -43,7 +42,7 @@ public class Epic extends Task{
         return hash;
     }
 
-    public void setEpicList(Subtask subtask) {
+    public void addEpicList(Subtask subtask) {
         this.subtasks.add(subtask);
     }
 

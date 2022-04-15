@@ -11,4 +11,8 @@ public interface HistoryManager {
 
     public void remove(Long id);
 
+    public String stringToFile();
+
+    public void print();
+
 }

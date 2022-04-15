@@ -22,7 +22,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
 
     public FileBackedTasksManager(File fileBacked) {
 
-        history = new InMemoryHistoryManager();
+        //super(Managers.getHistoryManager());
+        //history = new InMemoryHistoryManager();
         this.fileBacked = fileBacked;
         if (fileBacked.exists()) {
             loadFromFile();
@@ -55,12 +56,17 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         taskManager.createSubtask(subtask13);
 
         taskManager.getEpicByID(3);
-        taskManager.getTaskById(11);    
+        taskManager.getTaskById(11);
         taskManager.getSubtaskByID(13);
         taskManager.getEpicByID(7);
         taskManager.getTaskById(10);
         taskManager.getSubtaskByID(15);
         taskManager.getEpicByID(12);
+
+        Subtask subtask14 = new Subtask("Рамку для фотографий",
+                "И убрать в шкаф", TaskStatus.DONE, 12);
+        subtask14.setId(15);
+        taskManager.updateSubtask(subtask14);
 
         boolean check = verifyData();
 
@@ -92,7 +98,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
                         maxId = subtask.getId();
                     }
                     Epic currentEpic = epicMap.get(subtask.getEpicID());
-                    currentEpic.setEpicList(subtask);
+                    currentEpic.addEpicList(subtask);
                 }
 
             }

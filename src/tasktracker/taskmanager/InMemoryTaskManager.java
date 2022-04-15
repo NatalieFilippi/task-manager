@@ -1,5 +1,6 @@
 package tasktracker.taskmanager;
 
+import historymanager.HistoryManager;
 import tasktracker.TaskStatus;
 import tasktracker.tasks.Epic;
 import tasktracker.tasks.Subtask;
@@ -16,13 +17,14 @@ public class InMemoryTaskManager implements TaskManager{
     protected static HashMap<Long, Task> taskMap;
     protected static HashMap<Long, Epic> epicMap;
     protected static HashMap<Long, Subtask> subtaskMap;
-    protected static InMemoryHistoryManager history;
+    protected static HistoryManager history;
 
     public InMemoryTaskManager() {
-        incrementalId = 0;
         taskMap = new HashMap<>();
         epicMap = new HashMap<>();
         subtaskMap = new HashMap<>();
+        //this.history = historyManager;
+        this.history = Managers.getHistoryManager();
     }
 
     //~~~~~~~~~ Получить список задач + ~~~~~~~~~~~
@@ -96,6 +98,7 @@ public class InMemoryTaskManager implements TaskManager{
     public void createEpic(Epic epic){       //Создать эпик
         long id = getCode();
         epic.setId(id);
+        changeEpicStatus(epic);
         epicMap.put(id, epic);
     }
     @Override
@@ -106,10 +109,9 @@ public class InMemoryTaskManager implements TaskManager{
             subtaskMap.put(id, subtask);
 
             Epic currentEpic = epicMap.get(subtask.getEpicID());
-            currentEpic.setEpicList(subtask);
-            if (currentEpic.getStatus() == TaskStatus.DONE) {
-                currentEpic.setStatus(TaskStatus.IN_PROGRESS);
-            }
+            currentEpic.addEpicList(subtask);
+
+            changeEpicStatus(currentEpic);
         }
     }
 
@@ -134,10 +136,22 @@ public class InMemoryTaskManager implements TaskManager{
     public void updateSubtask(Subtask subtask){    //Обновить субтаск
         if (subtaskMap.containsKey(subtask.getId())) {
             subtaskMap.put(subtask.getId(), subtask);
+            updateSubtasksInEpic(epicMap.get(subtask.getEpicID()), subtask);
             changeEpicStatus(epicMap.get(subtask.getEpicID()));
         }
     }
 
+    private void updateSubtasksInEpic(Epic epic, Subtask subtask) {
+        //List<Subtask> subtasks = epic.getSubtasks().;
+        for (int i=0; i < epic.getSubtasks().size(); i++) {
+            if (epic.getSubtasks().get(i).getId() == subtask.getId()) {
+                epic.getSubtasks().remove(i);
+                epic.getSubtasks().add(subtask);
+                break;
+            }
+        }
+        //epic.getSubtasks();
+    }
     //~~~~~~~~~ Удалить по идентификатору + ~~~~~~~~~~~
     @Override
     public void deleteByIDTask(long id){       //Удалить по идентификатору таск

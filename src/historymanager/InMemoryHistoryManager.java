@@ -87,6 +87,7 @@ public class InMemoryHistoryManager implements HistoryManager{
         return getTasks();
     }
 
+    @Override
     public String stringToFile() {
         List<Task> tasks = getTasks();
         String line = "";
@@ -103,6 +104,7 @@ public class InMemoryHistoryManager implements HistoryManager{
 
 
     //метод для тестирования
+    @Override
     public void print() {
         List<Task> history = getHistory();
         for (Task task : history) {
