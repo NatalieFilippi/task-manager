@@ -22,8 +22,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
 
     public FileBackedTasksManager(File fileBacked) {
 
-        //super(Managers.getHistoryManager());
-        //history = new InMemoryHistoryManager();
         this.fileBacked = fileBacked;
         if (fileBacked.exists()) {
             loadFromFile();

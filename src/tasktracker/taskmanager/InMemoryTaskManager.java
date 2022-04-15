@@ -23,7 +23,6 @@ public class InMemoryTaskManager implements TaskManager{
         taskMap = new HashMap<>();
         epicMap = new HashMap<>();
         subtaskMap = new HashMap<>();
-        //this.history = historyManager;
         this.history = Managers.getHistoryManager();
     }
 
@@ -135,23 +134,17 @@ public class InMemoryTaskManager implements TaskManager{
     @Override
     public void updateSubtask(Subtask subtask){    //Обновить субтаск
         if (subtaskMap.containsKey(subtask.getId())) {
-            subtaskMap.put(subtask.getId(), subtask);
-            updateSubtasksInEpic(epicMap.get(subtask.getEpicID()), subtask);
-            changeEpicStatus(epicMap.get(subtask.getEpicID()));
+            Subtask oldSubtask = subtaskMap.get(subtask.getId());
+            Epic epic = epicMap.get(subtask.getEpicID());
+            if(oldSubtask!=null){
+                subtaskMap.put(subtask.getId(), subtask);
+                epic.getSubtasks().remove(oldSubtask);
+                epic.getSubtasks().add(subtask);
+                changeEpicStatus(epic);
+            }
         }
     }
 
-    private void updateSubtasksInEpic(Epic epic, Subtask subtask) {
-        //List<Subtask> subtasks = epic.getSubtasks().;
-        for (int i=0; i < epic.getSubtasks().size(); i++) {
-            if (epic.getSubtasks().get(i).getId() == subtask.getId()) {
-                epic.getSubtasks().remove(i);
-                epic.getSubtasks().add(subtask);
-                break;
-            }
-        }
-        //epic.getSubtasks();
-    }
     //~~~~~~~~~ Удалить по идентификатору + ~~~~~~~~~~~
     @Override
     public void deleteByIDTask(long id){       //Удалить по идентификатору таск

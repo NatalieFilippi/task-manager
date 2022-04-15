@@ -51,19 +51,19 @@ public class InMemoryHistoryManager implements HistoryManager{
         Node next = node.getNext(); //найти следующий просмотр
         Node prev = node.getPrev(); //найти предыдущий просмотр
 
-        if(next == null) {
+        if (prev == null) {
+            head = next;
+        } else {
+            prev.setNext(next);
+        }
+
+        if (next == null) {
             tail = prev;
-            prev.setNext(null);
         } else {
             next.setPrev(prev);
         }
 
-        if (prev == null) {
-            head = next;
-            next.setPrev(null);
-        } else {
-            prev.setNext(next);
-        }
+
 
         node.setPrev(null);
         node.setNext(null);

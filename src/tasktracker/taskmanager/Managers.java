@@ -16,12 +16,7 @@ public class Managers {
     }
 
     public static TaskManager getDefault() {
-        //final String PATH = "resources" + File.separator + "task manager.csv";
-        //return new FileBackedTasksManager(new File(PATH));
         return taskManager;
     }
 
-    public static HistoryManager getDefaultHistory() {
-        return historyManager;
-    }
 }
