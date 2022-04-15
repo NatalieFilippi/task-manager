@@ -43,4 +43,21 @@ public class Subtask extends Task{
     public long getEpicID() {
         return epicID;
     }
+
+    @Override
+    public String stringToFile() {
+
+        return  String.format("%d,%s,%s,%s,%s,%d\n", getId(),"SUBTASK",getName(),getStatus().toString(),getDetail(),getEpicID());
+
+    }
+
+    public static Subtask fromFile(String line) {
+
+        String[] split = line.split(",");
+
+        Subtask newSubtask = new Subtask(split[2], split[4], TaskStatus.getStatus(split[3]),Long.parseLong(split[5]));
+        newSubtask.setId(Long.parseLong(split[0]));
+        return newSubtask;
+
+    }
 }

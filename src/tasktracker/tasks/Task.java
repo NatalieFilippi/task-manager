@@ -44,6 +44,22 @@ public class Task{
 
     }
 
+    public String stringToFile() {
+
+        return  String.format("%d,%s,%s,%s,%s\n", getId(),"TASK",getName(),getStatus().toString(),getDetail());
+
+    }
+
+    public static Task fromFile(String line) {
+
+        String[] split = line.split(",");
+
+        Task newTask = new Task(split[2], split[4], TaskStatus.getStatus(split[3]));
+        newTask.setId(Long.parseLong(split[0]));
+        return newTask;
+
+    }
+
     public void setId(long id) {
         this.id = id;
     }

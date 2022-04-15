@@ -2,7 +2,6 @@ package historymanager;
 
 import tasktracker.tasks.Task;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -65,7 +64,7 @@ public class InMemoryHistoryManager implements HistoryManager{
         } else {
             prev.setNext(next);
         }
-        
+
         node.setPrev(null);
         node.setNext(null);
         node.setData(null);
@@ -87,6 +86,16 @@ public class InMemoryHistoryManager implements HistoryManager{
     public List<Task> getHistory(){
         return getTasks();
     }
+
+    public String stringToFile() {
+        List<Task> tasks = getTasks();
+        String line = "";
+        for (Task task : tasks) {
+            line += task.getId() +",";
+        }
+        return line.substring(0,line.length()-1); //чтобы не передавать последнюю запятую
+    }
+
 
 
 

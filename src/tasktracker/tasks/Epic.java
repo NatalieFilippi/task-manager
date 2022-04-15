@@ -46,6 +46,23 @@ public class Epic extends Task{
         this.subtasks.add(subtask);
     }
 
+    @Override
+    public String stringToFile() {
+
+        return  String.format("%d,%s,%s,%s,%s\n", getId(),"EPIC",getName(),getStatus().toString(),getDetail());
+
+    }
+
+    public static Epic fromFile(String line) {
+
+        String[] split = line.split(",");
+
+        Epic newEpic = new Epic(split[2], split[4], TaskStatus.getStatus(split[3]));
+        newEpic.setId(Long.parseLong(split[0]));
+        return newEpic;
+
+    }
+
     public ArrayList<Subtask> getSubtasks() {
         return subtasks;
     }

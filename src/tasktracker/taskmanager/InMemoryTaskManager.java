@@ -12,11 +12,11 @@ import java.util.HashMap;
 
 
 public class InMemoryTaskManager implements TaskManager{
-    private int incrementalId; //сквозной счётчик-генератор ID задач, не противоречит ТЗ
-    private HashMap<Long, Task> taskMap;
-    private HashMap<Long, Epic> epicMap;
-    private HashMap<Long, Subtask> subtaskMap;
-    private InMemoryHistoryManager history;
+    protected static int incrementalId; //сквозной счётчик-генератор ID задач, не противоречит ТЗ
+    protected HashMap<Long, Task> taskMap;
+    protected HashMap<Long, Epic> epicMap;
+    protected HashMap<Long, Subtask> subtaskMap;
+    protected InMemoryHistoryManager history;
 
     public InMemoryTaskManager() {
         incrementalId = 0;
@@ -170,7 +170,7 @@ public class InMemoryTaskManager implements TaskManager{
 
     //~~~~~~~~~ДОПОЛНИТЕЛЬНЫЕ МЕТОДЫ ~~~~~~~~~~~
 
-    private int getCode(){
+    private static int getCode(){
         return ++incrementalId;
     }
 
