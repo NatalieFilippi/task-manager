@@ -65,14 +65,6 @@ public class InMemoryTaskManager implements TaskManager{
     public void deleteAllEpics(){       //Удалить все эпики
        for (Long id : epicMap.keySet()) {
             history.remove(id);
-            if (epicMap.get(id).getStartTime() != null) {
-                if (prioritizedTasks.containsKey(epicMap.get(id).getStartTime())) {
-                    prioritizedTasks.remove(epicMap.get(id).getStartTime());
-                }
-            }
-            if (prioritizedTasksNull.containsKey(id)) {
-               prioritizedTasksNull.remove(epicMap.get(id));
-            }
         }
         epicMap.clear();
         deleteAllSubtasks();
@@ -147,11 +139,6 @@ public class InMemoryTaskManager implements TaskManager{
         epic.setId(id);
         changeEpicStatus(epic);
         epicMap.put(id, epic);
-        if (epic.getStartTime() != null) {
-            prioritizedTasks.put(epic.getStartTime(),epic);
-        } else {
-            prioritizedTasksNull.put(id,epic);
-        }
     }
     @Override
     public void createSubtask(Subtask subtask){    //Создать субтаск
@@ -199,7 +186,6 @@ public class InMemoryTaskManager implements TaskManager{
                     return;
                 } else {
                     epicMap.put(epic.getId(), epic);
-                    updatePriority(epic);
                 }
             }
         }
@@ -219,7 +205,6 @@ public class InMemoryTaskManager implements TaskManager{
                         epic.timeCalculation();
                     }
                     updatePriority(subtask);
-                    updatePriority(epic);
                 }
             } else {
                 throw new IllegalArgumentException("Подзадача не может пересекаться с другими задачами!");
@@ -260,15 +245,6 @@ public class InMemoryTaskManager implements TaskManager{
                 subtaskMap.remove(sb.getId());
                 history.remove(sb.getId());
 
-            }
-
-            if (epicMap.get(id).getStartTime() != null) {
-                if (prioritizedTasks.containsKey(epicMap.get(id).getStartTime())) {
-                    prioritizedTasks.remove(epicMap.get(id).getStartTime());
-                }
-            }
-            if (prioritizedTasksNull.containsKey(id)) {
-                prioritizedTasksNull.remove(id);
             }
             epicMap.remove(id);
             history.remove(id);
@@ -370,7 +346,7 @@ public class InMemoryTaskManager implements TaskManager{
                     if (!currentTask.equals(task)) {
                         if (currentTask.getEndTime() != null) {
                             check = (task.getStartTime().isBefore(currentTask.getStartTime()) &&
-                                    task.getEndTime().isBefore(currentTask.getEndTime()) ||
+                                    task.getEndTime().isBefore(currentTask.getStartTime()) ||
                                     (task.getStartTime().isAfter(currentTask.getStartTime()) &&
                                             task.getEndTime().isAfter(currentTask.getEndTime())));
                             if (!check) {

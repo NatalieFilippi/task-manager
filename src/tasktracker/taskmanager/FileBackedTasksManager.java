@@ -75,41 +75,56 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         long maxId = 0;
         List<String> content = readFileContentsOrNull();
         if (!content.isEmpty()) {
-            for (int k = 1; k < content.size() - 1; k++) {
-                String[] line = content.get(k).split(",");
-                if (line[1].equals("TASK")) {
-                    Task task = Task.fromFile(content.get(k));
-                    taskMap.put(task.getId(), task);
-                    if (task.getId() > maxId) {
-                        maxId = task.getId();
-                    }
-                } else if (line[1].equals("EPIC")) {
-                    Epic epic = Epic.fromFile(content.get(k));
-                    epicMap.put(epic.getId(), epic);
-                    if (epic.getId() > maxId) {
-                        maxId = epic.getId();
-                    }
-                } else if (line[1].equals("SUBTASK")) {
-                    Subtask subtask = Subtask.fromFile(content.get(k));
-                    subtaskMap.put(subtask.getId(), subtask);
-                    if (subtask.getId() > maxId) {
-                        maxId = subtask.getId();
-                    }
-                    Epic currentEpic = epicMap.get(subtask.getEpicID());
-                    currentEpic.addEpicList(subtask);
+            boolean endFile = true;
+            for (int k = 1; k < content.size(); k++) {
+                if (content.get(k).isBlank()) { //если дошли до пустой строки
+                    endFile = (k == content.size() - 1); //вычислим, дошли и мы до конца файла
+                    break; //выходим из цикла
                 }
 
+                if (verifyString(content.get(k))) {
+                    String[] line = content.get(k).split(",");
+                    if (line[1].equals("TASK")) {
+                        Task task = Task.fromFile(content.get(k));
+                        taskMap.put(task.getId(), task);
+                        if (task.getId() > maxId) {
+                            maxId = task.getId();
+                        }
+                    } else if (line[1].equals("EPIC")) {
+                        Epic epic = Epic.fromFile(content.get(k));
+                        epicMap.put(epic.getId(), epic);
+                        if (epic.getId() > maxId) {
+                            maxId = epic.getId();
+                        }
+                    } else if (line[1].equals("SUBTASK")) {
+                        Subtask subtask = Subtask.fromFile(content.get(k));
+                        subtaskMap.put(subtask.getId(), subtask);
+                        if (subtask.getId() > maxId) {
+                            maxId = subtask.getId();
+                        }
+                        Epic currentEpic = epicMap.get(subtask.getEpicID());
+                        currentEpic.addEpicList(subtask);
+                    }
+
+                }
             }
             incrementalId = (int) maxId;
-            historyFromString(content.get(content.size() - 1));
+            if (!endFile) {
+                historyFromString(content.get(content.size() - 1));
+            }
         }
     }
 
+    private boolean verifyString(String str) {
+        return  str.contains("TASK") || str.contains("EPIC") || str.contains("SUBTASK");
+    }
     private void save() {
 
         try (Writer fileWriter = new FileWriter(fileBacked)) {
 
-            fileWriter.write(getFirstLine());   //записать первую строку заголовков
+            if(!taskMap.isEmpty() || !epicMap.isEmpty() || !subtaskMap.isEmpty()) {
+                fileWriter.write(getFirstLine());   //записать первую строку заголовков
+            }
             for (Task task: taskMap.values()) { //записать все таски
                 fileWriter.write(task.stringToFile());
             }
@@ -133,7 +148,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
     }
 
     private static String getFirstLine() {
-        return "id,type,name,status,description,epic\n";
+        return "id,type,name,status,description,epic,startTime,duration,endTime\n";
     }
 
     public void historyFromString(String value) {
@@ -157,9 +172,9 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
             List<String> file = new ArrayList<>();
             while (fileReader.ready()) {
                 String line = fileReader.readLine();
-                if (!line.isEmpty()) {
+                //if (!line.isEmpty()) {
                     file.add(line);
-                }
+                //}
             }
             fileReader.close();
             return file;
@@ -181,9 +196,11 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         if (content.isEmpty() && taskMap.isEmpty() && epicMap.isEmpty() && subtaskMap.isEmpty()) {
             return true;
         }
-        for (int k = 1; k < content.size() - 1; k++) {
+        for (int k = 1; k < content.size(); k++) {
+            if (content.get(k).isBlank()) { //если дошли до пустой строки
+                break; //выходим из цикла
+            }
             String[] line = content.get(k).split(",");
-
             if (line[1].equals("TASK")) {
                 Task task = Task.fromFile(content.get(k));
                 if (taskMap.containsKey(task.getId())) {

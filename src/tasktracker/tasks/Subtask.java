@@ -3,6 +3,8 @@ package tasktracker.tasks;
 
 import tasktracker.TaskStatus;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Subtask extends Task{
@@ -20,7 +22,9 @@ public class Subtask extends Task{
                 "name='" + getName() + '\'' +
                 ", detail='" + getDetail() + '\'' +
                 ", status='" + getStatus() + '\'' +
-                ", epicID=" + epicID + '}' + "\n";
+                ", epicID=" + epicID + '\'' +
+                ", startTime='" + getStartTime() + '\'' +
+                ", duration='" + getDuration() + '}' +"\n";
     }
 
     @Override
@@ -51,7 +55,9 @@ public class Subtask extends Task{
                 Objects.equals(getDetail(), subtask.getDetail()) &&
                 Objects.equals(getStatus(), subtask.getStatus()) &&
                 Objects.equals(getId(), subtask.getId()) &&
-                Objects.equals(getEpicID(), subtask.getEpicID());
+                Objects.equals(getEpicID(), subtask.getEpicID()) &&
+                Objects.equals(getStartTime(), subtask.getStartTime()) &&
+                Objects.equals(getDuration(), subtask.getDuration());
     }
 
     public long getEpicID() {
@@ -60,8 +66,20 @@ public class Subtask extends Task{
 
     @Override
     public String stringToFile() {
-
-        return  String.format("%d,%s,%s,%s,%s,%d\n", getId(),"SUBTASK",getName(),getStatus().toString(),getDetail(),getEpicID());
+        String start = "-";
+        if (getStartTime() != null) {
+            start = getStartTime().toString();
+        };
+        long duration = 0;
+        if (getDuration() != null) {
+            duration = getDuration().getSeconds();
+        };
+        String end = "-";
+        if (getEndTime() != null) {
+            end = getEndTime().toString();
+        };
+        return  String.format("%d,%s,%s,%s,%s,%d,%s,%d,%s\n", getId(),"SUBTASK",getName(),getStatus().toString(),
+                getDetail(),getEpicID(),start,duration,end);
 
     }
 
@@ -71,6 +89,12 @@ public class Subtask extends Task{
 
         Subtask newSubtask = new Subtask(split[2], split[4], TaskStatus.getStatus(split[3]),Long.parseLong(split[5]));
         newSubtask.setId(Long.parseLong(split[0]));
+        if (!split[6].equals("-"))  {
+            newSubtask.setStartTime(LocalDateTime.parse(split[6]));
+        }
+        if (!split[7].equals("0")) {
+            newSubtask.setDuration(Duration.ofSeconds(Long.parseLong(split[7])));
+        }
         return newSubtask;
 
     }

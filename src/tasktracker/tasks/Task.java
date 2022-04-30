@@ -1,19 +1,34 @@
 package tasktracker.tasks;
 
 import tasktracker.TaskStatus;
-import java.util.Objects;
 
-public class Task{
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.*;
+
+public class Task implements Comparable<Task>{
     private String name;      //название задачи
     private String detail;    //описание задачи
     private TaskStatus status; //статус задачи
     private long id;           //id задачи, исправила
+    private Duration duration;
+    private LocalDateTime startTime;
+
+    public Task(String name, String detail, TaskStatus status, Duration duration, LocalDateTime startTime) {
+        this.name = name;
+        this.detail = detail;
+        this.status = status;
+        this.duration = duration;
+        this.startTime = startTime;
+    }
 
     public Task(String name, String detail, TaskStatus status) {
         this.name = name;
         this.detail = detail;
         this.status = status;
         //ID присвоит менеджер
+        this.duration = Duration.ZERO;
     }
 
     public Task(String name, String detail) {
@@ -58,13 +73,28 @@ public class Task{
         return  "Main.Task{" +
                 "name='" + getName() + '\'' +
                 ", detail='" + getDetail() + '\'' +
-                ", status='" + getStatus() + '}' + "\n";
+                ", status='" + getStatus() + '\'' +
+                ", startTime='" + getStartTime() + '\'' +
+                ", duration='" + getDuration() + '}' +"\n";
 
     }
 
     public String stringToFile() {
+        String start = "-";
+        if (getStartTime() != null) {
+            start = getStartTime().toString();
+        };
+        long duration = 0;
+        if (getDuration() != null) {
+            duration = getDuration().getSeconds();
+        };
+        String end = "-";
+        if (getEndTime() != null) {
+            end = getEndTime().toString();
+        };
 
-        return  String.format("%d,%s,%s,%s,%s\n", getId(),"TASK",getName(),getStatus().toString(),getDetail());
+        return  String.format("%d,%s,%s,%s,%s,%s,%d,%s\n", getId(),"TASK",getName(),getStatus().toString(),
+                getDetail(),start,duration,end);
 
     }
 
@@ -74,6 +104,13 @@ public class Task{
 
         Task newTask = new Task(split[2], split[4], TaskStatus.getStatus(split[3]));
         newTask.setId(Long.parseLong(split[0]));
+        if (!split[5].equals("-"))  {
+            newTask.setStartTime(LocalDateTime.parse(split[5]));
+        }
+        if (!split[6].equals("0")) {
+            newTask.setDuration(Duration.ofSeconds(Long.parseLong(split[6])));
+        }
+
         return newTask;
 
     }
@@ -108,6 +145,40 @@ public class Task{
 
     public String getDetail() {
         return detail;
+    }
+
+    public LocalDateTime getEndTime() {
+        if (startTime == null || duration == null) {
+           return null;
+        }
+        return startTime.plus(duration);
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+    public Duration getDuration() {
+        return duration;
+    }
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+
+    @Override
+    public int compareTo(Task o) {
+        if (this.getStartTime() == null && o.getStartTime() == null) {
+            return (int) (this.getId() - o.getId());
+        }
+
+        if (this.getStartTime() == null || o.getStartTime() == null) {
+            return o.getStartTime() != null ? 1 : (this.getStartTime() != null ? -1 : 0);
+        }
+        return this.getStartTime().compareTo(o.getStartTime());
     }
 }
 
