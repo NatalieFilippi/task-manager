@@ -43,8 +43,8 @@ public class InMemoryHistoryManager implements HistoryManager{
     public void remove (Long id) {
         if (nodeTable.containsKey(id)) {
             removeNode(nodeTable.get(id));
+            nodeTable.remove(id);
         }
-        //нет смысла удалять из хэш-таблицы, т.к. при добавлении нового просмотра запись просто обновиться
     }
 
     private void removeNode (Node node) {
@@ -99,8 +99,6 @@ public class InMemoryHistoryManager implements HistoryManager{
         }
         return line; //чтобы не передавать последнюю запятую
     }
-
-
 
 
     //метод для тестирования

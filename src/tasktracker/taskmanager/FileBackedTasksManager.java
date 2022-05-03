@@ -18,7 +18,7 @@ import java.io.BufferedReader;
 public class FileBackedTasksManager extends InMemoryTaskManager{
 
     private static final String PATH = "resources" + File.separator + "task manager.csv";
-    private static File fileBacked;
+    private File fileBacked;
 
     public FileBackedTasksManager(File fileBacked) {
 
@@ -66,14 +66,12 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         subtask14.setId(15);
         taskManager.updateSubtask(subtask14);
 
-        boolean check = verifyData();
-
         FileBackedTasksManager taskManager2 = new FileBackedTasksManager(file);
     }
 
     private void loadFromFile(){
         long maxId = 0;
-        List<String> content = readFileContentsOrNull();
+        List<String> content = readFileContentsOrNull(fileBacked);
         if (!content.isEmpty()) {
             boolean endFile = true;
             for (int k = 1; k < content.size(); k++) {
@@ -118,6 +116,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
     private boolean verifyString(String str) {
         return  str.contains("TASK") || str.contains("EPIC") || str.contains("SUBTASK");
     }
+
     private void save() {
 
         try (Writer fileWriter = new FileWriter(fileBacked)) {
@@ -165,7 +164,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         }
     }
 
-    private static List<String> readFileContentsOrNull() {
+    private static List<String> readFileContentsOrNull(File fileBacked) {
 
         try (BufferedReader fileReader = new BufferedReader(new FileReader(fileBacked))) {
 
@@ -184,16 +183,16 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         return null;
     }
 
-    private static boolean verifyData() {
-        List<String> content = readFileContentsOrNull();
+    private boolean verifyData(File fileBacked) {
+        List<String> content = readFileContentsOrNull(fileBacked);
         boolean b1 = verifyHistory(content.get(content.size() - 1));
         boolean b2 = verifyTasks(content);
         return b1 && b2;
     }
 
-    private static boolean verifyTasks(List<String> content) {
+    private boolean verifyTasks(List<String> content) {
 
-        if (content.isEmpty() && taskMap.isEmpty() && epicMap.isEmpty() && subtaskMap.isEmpty()) {
+        if (content.isEmpty() && getTaskMap().isEmpty() && getEpicMap().isEmpty() && getSubtaskMap().isEmpty()) {
             return true;
         }
         for (int k = 1; k < content.size(); k++) {
@@ -203,26 +202,20 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
             String[] line = content.get(k).split(",");
             if (line[1].equals("TASK")) {
                 Task task = Task.fromFile(content.get(k));
-                if (taskMap.containsKey(task.getId())) {
-                    if (!taskMap.get(task.getId()).equals(task)) {
-                        return false;
-                    }
+                if (!getTaskMap().contains(task)) {
+                    return false;
                 }
 
                 } else if (line[1].equals("EPIC")) {
                     Epic epic = Epic.fromFile(content.get(k));
-                    if (epicMap.containsKey(epic.getId())) {
-                        if (!epicMap.get(epic.getId()).equals(epic)) {
-                            return false;
-                        }
+                    if (!getEpicMap().contains(epic)) {
+                        return false;
                     }
 
                 } else if (line[1].equals("SUBTASK")) {
                     Subtask subtask = Subtask.fromFile(content.get(k));
-                    if (subtaskMap.containsKey(subtask.getId())) {
-                        if (!subtaskMap.get(subtask.getId()).equals(subtask)) {
-                            return false;
-                        }
+                    if (!getSubtaskMap().contains(subtask)) {
+                        return false;
                     }
                 }
 
@@ -230,7 +223,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         return true;
     }
 
-    private static boolean verifyHistory(String historyFile) {
+    private boolean verifyHistory(String historyFile) {
 
         List<Task> historyMemory = history.getHistory();
 

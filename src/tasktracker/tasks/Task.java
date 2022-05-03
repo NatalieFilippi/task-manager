@@ -64,7 +64,9 @@ public class Task implements Comparable<Task>{
         return Objects.equals(name, task.name) &&
                 Objects.equals(detail, task.detail) &&
                 Objects.equals(status, task.status) &&
-                Objects.equals(id, task.id);
+                Objects.equals(id, task.id) &&
+                Objects.equals(startTime, task.startTime) &&
+                Objects.equals(duration, task.duration);
     }
 
     @Override
@@ -83,15 +85,15 @@ public class Task implements Comparable<Task>{
         String start = "-";
         if (getStartTime() != null) {
             start = getStartTime().toString();
-        };
+        }
         long duration = 0;
         if (getDuration() != null) {
             duration = getDuration().getSeconds();
-        };
+        }
         String end = "-";
         if (getEndTime() != null) {
             end = getEndTime().toString();
-        };
+        }
 
         return  String.format("%d,%s,%s,%s,%s,%s,%d,%s\n", getId(),"TASK",getName(),getStatus().toString(),
                 getDetail(),start,duration,end);
@@ -102,7 +104,7 @@ public class Task implements Comparable<Task>{
 
         String[] split = line.split(",");
 
-        Task newTask = new Task(split[2], split[4], TaskStatus.getStatus(split[3]));
+        Task newTask = new Task(split[2], split[4], TaskStatus.valueOf(split[3]));
         newTask.setId(Long.parseLong(split[0]));
         if (!split[5].equals("-"))  {
             newTask.setStartTime(LocalDateTime.parse(split[5]));
@@ -161,19 +163,17 @@ public class Task implements Comparable<Task>{
     public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
+
     public Duration getDuration() {
         return duration;
     }
+
     public LocalDateTime getStartTime() {
         return startTime;
     }
 
-
     @Override
     public int compareTo(Task o) {
-        if (this.getStartTime() == null && o.getStartTime() == null) {
-            return (int) (this.getId() - o.getId());
-        }
 
         if (this.getStartTime() == null || o.getStartTime() == null) {
             return o.getStartTime() != null ? 1 : (this.getStartTime() != null ? -1 : 0);

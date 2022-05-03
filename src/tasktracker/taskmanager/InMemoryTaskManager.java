@@ -13,13 +13,15 @@ import java.util.*;
 
 
 public class InMemoryTaskManager implements TaskManager{
-    protected static int incrementalId; //сквозной счётчик-генератор ID задач, не противоречит ТЗ
-    protected static HashMap<Long, Task> taskMap;
-    protected static HashMap<Long, Epic> epicMap;
-    protected static HashMap<Long, Subtask> subtaskMap;
-    protected static HistoryManager history;
-    protected static TreeMap<LocalDateTime,Task> prioritizedTasks;
-    protected static HashMap<Long,Task> prioritizedTasksNull;
+
+    //все поля принадлежат классу, а не объекту. Как будто бы
+    protected int incrementalId; //сквозной счётчик-генератор ID задач, не противоречит ТЗ
+    protected HashMap<Long, Task> taskMap;
+    protected HashMap<Long, Epic> epicMap;
+    protected HashMap<Long, Subtask> subtaskMap;
+    protected HistoryManager history;
+    protected TreeMap<LocalDateTime,Task> prioritizedTasks;
+    protected HashMap<Long,Task> prioritizedTasksNull;
 
     public InMemoryTaskManager() {
         taskMap = new HashMap<>();
@@ -50,13 +52,9 @@ public class InMemoryTaskManager implements TaskManager{
     public void deleteAllTasks(){       //Удалить все таски
         for (Long id : taskMap.keySet()) {
             if (taskMap.get(id).getStartTime() != null) {
-                if (prioritizedTasks.containsKey(taskMap.get(id).getStartTime())) {
-                    prioritizedTasks.remove(taskMap.get(id).getStartTime());
-                }
+                prioritizedTasks.remove(taskMap.get(id).getStartTime());
             }
-            if (prioritizedTasksNull.containsKey(id)) {
-                prioritizedTasksNull.remove(taskMap.get(id));
-            }
+            prioritizedTasksNull.remove(id);
             history.remove(id);
         }
         taskMap.clear();
@@ -74,13 +72,9 @@ public class InMemoryTaskManager implements TaskManager{
         for (Long id : subtaskMap.keySet()) {
             history.remove(id);
             if (subtaskMap.get(id).getStartTime() != null) {
-                if (prioritizedTasks.containsKey(subtaskMap.get(id).getStartTime())) {
-                    prioritizedTasks.remove(subtaskMap.get(id).getStartTime());
-                }
+                prioritizedTasks.remove(subtaskMap.get(id).getStartTime());
             }
-            if (prioritizedTasksNull.containsKey(id)) {
-                prioritizedTasksNull.remove(subtaskMap.get(id));
-            }
+            prioritizedTasksNull.remove(id);
         }
         subtaskMap.clear();
 
@@ -117,6 +111,10 @@ public class InMemoryTaskManager implements TaskManager{
     }
 
     //~~~~~~~~~ Создать задачу + ~~~~~~~~~~~
+
+    //Из ТЗ: "Отсортируйте все задачи по приоритету — то есть по startTime.
+    // Если дата старта не задана, добавьте задачу в конец списка задач, подзадач,
+    // отсортированных по startTime". Поэтому так много проверок на null
     @Override
     public void createTask(Task task){       //Создать таск
         if (periodCheck(task)) {
@@ -182,9 +180,7 @@ public class InMemoryTaskManager implements TaskManager{
     public void updateEpic(Epic epic){       //Обновить эпик
         if (epic != null) {
             if (epicMap.containsKey(epic.getId())) {
-                if (epicMap.get(epic.getId()).getStatus() != epic.getStatus()) { //нельзя обновить статус эпика
-                    return;
-                } else {
+                if (epicMap.get(epic.getId()).getStatus() == epic.getStatus()) { //нельзя обновить статус эпика
                     epicMap.put(epic.getId(), epic);
                 }
             }
@@ -217,13 +213,9 @@ public class InMemoryTaskManager implements TaskManager{
     public void deleteByIDTask(long id){       //Удалить по идентификатору таск
         if (taskMap.containsKey(id)) {
             if (taskMap.get(id).getStartTime() != null) {
-                if (prioritizedTasks.containsKey(taskMap.get(id).getStartTime())) {
-                    prioritizedTasks.remove(taskMap.get(id).getStartTime());
-                }
+                prioritizedTasks.remove(taskMap.get(id).getStartTime());
             }
-            if (prioritizedTasksNull.containsKey(id)) {
-                prioritizedTasksNull.remove(id);
-            }
+            prioritizedTasksNull.remove(id);
             taskMap.remove(id);
             history.remove(id);
 
@@ -258,13 +250,9 @@ public class InMemoryTaskManager implements TaskManager{
             epicMap.get(epicID).getSubtasks().remove(subtask);//удалить субтаск из эпика
             changeEpicStatus(epicMap.get(epicID));  //обновить статус эпика
             if (subtaskMap.get(id).getStartTime() != null) {
-                if (prioritizedTasks.containsKey(subtaskMap.get(id).getStartTime())) {
-                    prioritizedTasks.remove(subtaskMap.get(id).getStartTime());
-                }
+                prioritizedTasks.remove(subtaskMap.get(id).getStartTime());
             }
-            if (prioritizedTasksNull.containsKey(id)) {
-                prioritizedTasksNull.remove(id);
-            }
+            prioritizedTasksNull.remove(id);
             subtaskMap.remove(id);
             history.remove(id);
 
@@ -272,7 +260,7 @@ public class InMemoryTaskManager implements TaskManager{
     }
 
     //~~~~~~~~~~~~~~~~ Приоритет ~~~~~~~~~~~~~~~~~~~~~~~~~
-
+    @Override
     public List<Task> getPrioritizedTasks() {
         ArrayList<Task> buildPrioritizedTasks = new ArrayList<>(prioritizedTasks.values());
         buildPrioritizedTasks.addAll(prioritizedTasksNull.values());
@@ -280,14 +268,14 @@ public class InMemoryTaskManager implements TaskManager{
     }
 
     //~~~~~~~~~~~~~~~~ История ~~~~~~~~~~~~~~~~~~~~~~~~~
-
+    @Override
     public List<Task> history() {
         return history.getHistory();
     }
 
     //~~~~~~~~~ДОПОЛНИТЕЛЬНЫЕ МЕТОДЫ ~~~~~~~~~~~
 
-    private static int getCode(){
+    private int getCode(){
         return ++incrementalId;
     }
     private void changeEpicStatus(Epic epic) { //метод обновления статуса эпика
@@ -369,4 +357,5 @@ public class InMemoryTaskManager implements TaskManager{
         }
         return true;
     }
+
 }

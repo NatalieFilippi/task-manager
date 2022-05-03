@@ -1,33 +1,49 @@
-package tasktracker.taskmanager;
+package test.test;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tasktracker.TaskStatus;
+import tasktracker.taskmanager.FileBackedTasksManager;
+import tasktracker.taskmanager.TaskManager;
 import tasktracker.tasks.Epic;
+import tasktracker.tasks.Subtask;
 
 import java.io.File;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.Month;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class FileBackedTasksManagerTest {
+class FileBackedTasksManagerTest extends TaskManagerTest{
 
-    final static File file = new File("resources" + File.separator + "task manager test.csv");
+    public FileBackedTasksManagerTest() {
+        super(new FileBackedTasksManager(fileEmpty));
+    }
     final static File fileEmpty = new File("resources" + File.separator + "task manager empty test.csv");
-    private static FileBackedTasksManager taskManager;
     final static Epic epic1 = new Epic("Test addNewEpic1", "Test addNewEpic description1");
     final static Epic epic2 = new Epic("Test addNewEpic2", "Test addNewEpic description2");
+    private static FileBackedTasksManager taskManager1;
 
-    @AfterEach
-    void clear() {
-        taskManager.deleteAllTasks();
-        taskManager.deleteAllEpics();
-        taskManager.deleteAllSubtasks();
+    @Test
+    void saveFromFile() {
+
+        taskManager.createEpic(epic1);
+        Subtask s = new Subtask("Subtask 1", "subtask test 1", TaskStatus.NEW, 1);
+        s.setDuration(Duration.ofHours(5).plus(Duration.ofMinutes(20)));
+        s.setStartTime(LocalDateTime.of(2022, Month.NOVEMBER,24,12,00));
+        taskManager.createSubtask(s);
+        taskManager.getSubtaskByID(2);
+        taskManager.getEpicByID(1);
+
+        FileBackedTasksManager taskManager2 = new FileBackedTasksManager(fileEmpty);
+        assertEquals(2, taskManager2.history().size());
+        assertEquals(s.getStartTime(), taskManager2.history().get(0).getStartTime());
+
     }
 
     @Test
     void EmptyFile() {
-        taskManager = new FileBackedTasksManager(fileEmpty);
+
         assertEquals(0, taskManager.getTaskMap().size());
         assertEquals(0, taskManager.getEpicMap().size());
         assertEquals(0, taskManager.getSubtaskMap().size());
@@ -42,7 +58,6 @@ class FileBackedTasksManagerTest {
 
     @Test
     void EmptyTasks() {
-        taskManager = new FileBackedTasksManager(file);
 
         taskManager.deleteAllTasks();
         taskManager.deleteAllEpics();
@@ -57,7 +72,6 @@ class FileBackedTasksManagerTest {
 
     @Test
     void OnlyEpic() {
-        taskManager = new FileBackedTasksManager(fileEmpty);
 
         taskManager.createEpic(epic1);
         taskManager.createEpic(epic2);
@@ -70,6 +84,4 @@ class FileBackedTasksManagerTest {
         assertEquals(0, taskManager2.getSubtaskMap().size());
         assertEquals(2, taskManager2.history().size());
     }
-
-
 }

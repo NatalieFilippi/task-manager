@@ -6,6 +6,7 @@ import tasktracker.tasks.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public interface TaskManager {
 
@@ -61,5 +62,9 @@ public interface TaskManager {
 
     public void printHistory();
 
+    public List<Task> history();
+
+    //~~~~~~~~~~~~~~~~ Приоритет ~~~~~~~~~~~~~~~~~~~~~~~~~
+    public List<Task> getPrioritizedTasks();
 }
 

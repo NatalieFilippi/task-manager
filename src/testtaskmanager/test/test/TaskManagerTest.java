@@ -1,12 +1,11 @@
-package tasktracker.taskmanager;
+package test.test;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
-import static org.junit.jupiter.api.Assertions.*;
-import java.lang.IllegalArgumentException;
 import tasktracker.TaskStatus;
+import tasktracker.taskmanager.FileBackedTasksManager;
+import tasktracker.taskmanager.TaskManager;
 import tasktracker.tasks.Epic;
 import tasktracker.tasks.Subtask;
 import tasktracker.tasks.Task;
@@ -16,15 +15,15 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+public abstract class TaskManagerTest<T extends TaskManager> {
+    protected T taskManager;
 
-
-
-class TaskManagerTest {
-
-    final static File file = new File("resources" + File.separator + "task manager.csv");
-    private static FileBackedTasksManager taskManagerFile;
-    private static InMemoryTaskManager taskManagerMemory;
+    public TaskManagerTest(T taskManager) {
+        this.taskManager = taskManager;
+    }
     private static Epic epic;
     private static Task task1;
     private static Task task2;
@@ -35,10 +34,6 @@ class TaskManagerTest {
 
     @BeforeEach
     void beforeEach() {
-        taskManagerFile = new FileBackedTasksManager(file);
-        taskManagerMemory = new InMemoryTaskManager();
-        taskManagerFile.incrementalId = 0;
-        taskManagerMemory.incrementalId = 0;
 
         epic = new Epic("Epic", "Test addNewEpic description");
         task1 = new Task("Task 1", "Test 1 addNewTask description", TaskStatus.NEW,
@@ -59,26 +54,13 @@ class TaskManagerTest {
 
     @AfterEach
     void clear() {
-        taskManagerFile.deleteAllTasks();
-        taskManagerFile.deleteAllEpics();
-        taskManagerFile.deleteAllSubtasks();
-
-        taskManagerMemory.deleteAllTasks();
-        taskManagerMemory.deleteAllEpics();
-        taskManagerMemory.deleteAllSubtasks();
+        taskManager.deleteAllTasks();
+        taskManager.deleteAllEpics();
+        taskManager.deleteAllSubtasks();
     }
 
     @Test
-    void taskTestFile() {
-        addNewTask(taskManagerFile);
-    }
-
-    @Test
-    void taskTestMemory() {
-        addNewTask(taskManagerMemory);
-    }
-
-    private static void addNewTask(TaskManager taskManager) {
+    void addNewTask() {
         taskManager.createTask(task1);
         taskManager.createTask(task2);
         final Task savedTask = taskManager.getTaskById(task1.getId());
@@ -112,16 +94,7 @@ class TaskManagerTest {
     }
 
     @Test
-    void epicTestFile() {
-        addNewEpic(taskManagerFile);
-    }
-
-    @Test
-    void epicTestMemory() {
-        addNewEpic(taskManagerMemory);
-    }
-
-    private static void addNewEpic(TaskManager taskManager) {
+    void addNewEpic() {
         taskManager.createEpic(epic);
 
         final Epic savedEpic = taskManager.getEpicByID(epic.getId());
@@ -162,16 +135,7 @@ class TaskManagerTest {
     }
 
     @Test
-    void subtaskTestFile() {
-        addNewSubtask(taskManagerFile);
-    }
-
-    @Test
-    void subtaskTestMemory() {
-        addNewSubtask(taskManagerMemory);
-    }
-
-    private static void addNewSubtask(TaskManager taskManager) {
+    void addNewSubtask() {
         taskManager.createSubtask(s1);
         final Subtask subtaskNull = taskManager.getSubtaskByID(s1.getId());
         assertNull(subtaskNull, "Задача не должна быть создана.");
@@ -207,106 +171,160 @@ class TaskManagerTest {
         assertEquals(0, taskManager.getSubtaskMap().size(), "Неверное количество задач.");
     }
 
-
     @Test
-    void deleteAllFile() {
-        deleteAll(taskManagerFile);
-    }
-
-   @Test
-    void deleteAllMemory() {
-       deleteAll(taskManagerMemory);
-    }
-
-    private static void deleteAll(TaskManager taskManager) {
+    void deleteAll() {
 
         taskManager.createTask(task1);
         taskManager.createEpic(epic);
         taskManager.createSubtask(s1);
 
-        delete(taskManager);
+        delete();
 
         assertEquals(0, taskManager.getTaskMap().size());
         assertEquals(0, taskManager.getEpicMap().size());
         assertEquals(0, taskManager.getSubtaskMap().size());
     }
 
-    private static void delete(TaskManager taskManager) {
+    void delete() {
         taskManager.deleteAllTasks();
         taskManager.deleteAllEpics();
         taskManager.deleteAllSubtasks();
     }
 
     @Test
-    void saveFromFile() {
-        taskManagerFile.createEpic(epic);
-        taskManagerFile.createTask(task1);
-        taskManagerFile.createSubtask(s1);
-
-        s1.setDuration(Duration.ofHours(5).plus(Duration.ofMinutes(20)));
-        s1.setStartTime(LocalDateTime.of(2022, Month.NOVEMBER,24,12,00));
-        taskManagerFile.updateSubtask(s1);
-
-    }
-
-    @Test
     void sortingByPriority() {
 
-        taskManagerFile.createEpic(epic);
-        taskManagerFile.createSubtask(s1);
-        taskManagerFile.createSubtask(s2);
-        taskManagerFile.createTask(taskNull);
+        taskManager.createEpic(epic);
+        taskManager.createSubtask(s1);
+        taskManager.createSubtask(s2);
+        taskManager.createTask(taskNull);
 
         taskNull.setStartTime(LocalDateTime.of(2022, Month.APRIL,3,12,00));
         s1.setStartTime(LocalDateTime.of(2022, Month.APRIL,4,12,00));
         s2.setStartTime(LocalDateTime.of(2022, Month.APRIL,5,12,00));
 
-        taskManagerFile.updateTask(taskNull);
-        taskManagerFile.updateSubtask(s1);
-        taskManagerFile.updateSubtask(s2);
+        taskManager.updateTask(taskNull);
+        taskManager.updateSubtask(s1);
+        taskManager.updateSubtask(s2);
 
-        assertEquals(3, taskManagerFile.getPrioritizedTasks().size());
-        assertEquals(taskNull,taskManagerFile.getPrioritizedTasks().get(0));
+        assertEquals(3, taskManager.getPrioritizedTasks().size());
+        assertEquals(taskNull,taskManager.getPrioritizedTasks().get(0));
 
     }
 
     @Test
     void sortingByPriorityWithNull() {
 
-        taskManagerFile.createTask(taskNull);
-        taskManagerFile.createTask(task2);
+        taskManager.createTask(taskNull);
+        taskManager.createTask(task2);
 
-        taskManagerFile.createTask(task1);
-        taskManagerFile.createTask(task3);
+        taskManager.createTask(task1);
+        taskManager.createTask(task3);
 
-        assertEquals(4, taskManagerFile.getPrioritizedTasks().size());
-        assertEquals(taskManagerFile.getPrioritizedTasks().get(0), task3);
+        assertEquals(4, taskManager.getPrioritizedTasks().size());
+        assertEquals(taskManager.getPrioritizedTasks().get(0), task3);
 
-        taskManagerFile.getTaskMap().get(0).setStartTime(LocalDateTime.of(2022, Month.NOVEMBER,4,12,00));
-        taskManagerFile.updateTask(taskManagerFile.getTaskMap().get(0));
-        assertEquals(taskManagerFile.getPrioritizedTasks().get(0), taskNull);
+        taskManager.getTaskMap().get(0).setStartTime(LocalDateTime.of(2022, Month.NOVEMBER,4,12,00));
+        taskManager.updateTask(taskManager.getTaskMap().get(0));
+        assertEquals(taskManager.getPrioritizedTasks().get(0), taskNull);
 
-        assertEquals(4, taskManagerFile.getPrioritizedTasks().size());
+        assertEquals(4, taskManager.getPrioritizedTasks().size());
     }
 
     @Test
     void checkPriority() {
 
-        taskManagerFile.createTask(new Task("Task 1", "Test 1 description", TaskStatus.NEW,
+        taskManager.createTask(new Task("Task 1", "Test 1 description", TaskStatus.NEW,
                 Duration.ofHours(5).plus(Duration.ofMinutes(20)),
                 LocalDateTime.of(2022, Month.NOVEMBER,14,12,00)));
         Task taskTest = new Task("Task 2", "Test 2 description", TaskStatus.NEW,
                 Duration.ofHours(5).plus(Duration.ofMinutes(20)),
                 LocalDateTime.of(2022, Month.NOVEMBER,14,12,10));
-        assertEquals(1, taskManagerFile.getTaskMap().size());
+        assertEquals(1, taskManager.getTaskMap().size());
 
         taskTest.setStartTime(LocalDateTime.of(2022, Month.NOVEMBER,14,10,00));
         taskTest.setDuration(Duration.ofHours(1).plus(Duration.ofMinutes(20)));
-        taskManagerFile.createTask(taskTest);
-        assertEquals(2, taskManagerFile.getTaskMap().size());
+        taskManager.createTask(taskTest);
+        assertEquals(2, taskManager.getTaskMap().size());
 
         taskTest.setDuration(Duration.ofHours(2).plus(Duration.ofMinutes(20)));
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, ()->taskManagerFile.updateTask(taskTest));
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, ()->taskManager.updateTask(taskTest));
         assertEquals(ex.getMessage(), "Задача не может пересекаться с другими задачами!");
     }
 }
+
+
+/*class FileBackedTaskManagerTest2 extends TaskManagerTest {
+
+    public FileBackedTaskManagerTest2() {
+        super(new FileBackedTasksManager(fileEmpty));
+    }
+
+    final static File fileEmpty = new File("resources" + File.separator + "task manager empty test.csv");
+    final static File file = new File("resources" + File.separator + "task manager test.csv");
+    final static Epic epic1 = new Epic("Test addNewEpic1", "Test addNewEpic description1");
+    final static Epic epic2 = new Epic("Test addNewEpic2", "Test addNewEpic description2");
+    private static FileBackedTasksManager taskManager1;
+
+    @Test
+    void saveFromFile() {
+
+        taskManager.createEpic(epic1);
+        Subtask s = new Subtask("Subtask 1", "subtask test 1", TaskStatus.NEW, 1);
+        s.setDuration(Duration.ofHours(5).plus(Duration.ofMinutes(20)));
+        s.setStartTime(LocalDateTime.of(2022, Month.NOVEMBER,24,12,00));
+        taskManager.createSubtask(s);
+        taskManager.getSubtaskByID(2);
+        taskManager.getEpicByID(1);
+
+        FileBackedTasksManager taskManager2 = new FileBackedTasksManager(fileEmpty);
+        assertEquals(2, taskManager2.history().size());
+        assertEquals(s.getStartTime(), taskManager2.history().get(0).getStartTime());
+
+    }
+
+    @Test
+    void EmptyFile() {
+
+        assertEquals(0, taskManager.getTaskMap().size());
+        assertEquals(0, taskManager.getEpicMap().size());
+        assertEquals(0, taskManager.getSubtaskMap().size());
+        assertEquals(0, taskManager.history().size());
+
+        FileBackedTasksManager taskManager2 = new FileBackedTasksManager(fileEmpty);
+        assertEquals(0, taskManager2.getTaskMap().size());
+        assertEquals(0, taskManager2.getEpicMap().size());
+        assertEquals(0, taskManager2.getSubtaskMap().size());
+        assertEquals(0, taskManager2.history().size());
+    }
+
+    @Test
+    void EmptyTasks() {
+
+        taskManager.deleteAllTasks();
+        taskManager.deleteAllEpics();
+        taskManager.deleteAllSubtasks();
+
+        FileBackedTasksManager taskManager2 = new FileBackedTasksManager(fileEmpty);
+        assertEquals(0, taskManager2.getTaskMap().size());
+        assertEquals(0, taskManager2.getEpicMap().size());
+        assertEquals(0, taskManager2.getSubtaskMap().size());
+        assertEquals(0, taskManager2.history().size());
+    }
+
+    @Test
+    void OnlyEpic() {
+
+        taskManager.createEpic(epic1);
+        taskManager.createEpic(epic2);
+        taskManager.getEpicByID(epic1.getId());
+        taskManager.getEpicByID(epic2.getId());
+
+        FileBackedTasksManager taskManager2 = new FileBackedTasksManager(fileEmpty);
+        assertEquals(0, taskManager2.getTaskMap().size());
+        assertEquals(2, taskManager2.getEpicMap().size());
+        assertEquals(0, taskManager2.getSubtaskMap().size());
+        assertEquals(2, taskManager2.history().size());
+    }
+
+}*/

@@ -77,7 +77,7 @@ public class Epic extends Task{
 
         Epic newEpic = new Epic(split[2], split[4]);
         newEpic.setId(Long.parseLong(split[0]));
-        newEpic.setStatus(TaskStatus.getStatus(split[3]));
+        newEpic.setStatus(TaskStatus.valueOf(split[3]));
         if (!split[5].equals("-"))  {
             newEpic.setStartTime(LocalDateTime.parse(split[5]));
         }
@@ -111,6 +111,13 @@ public class Epic extends Task{
 
     private void timeCalculationStart() {
 
+        //Обновление даты старта эпика происходит с каждым изменением сабтаска.
+        //Если у эпика есть дата старта, это гарантирует, что хотя бы один сабтаск имеет дату старта,
+        //и первый случай описывает поиск минимальной даты старта.
+        //Второй случай, когда дата == null, говорит о том, что до сих пор у эпика не было сабтаска
+        //с обозначенной датой старта, а это значит, что достаточно найти первый, который как раз и вызвал
+        //обновление эпика. С поиском максимальной даты окончания аналогично.
+
         LocalDateTime start = getStartTime();
         if (start != null) {
             for (Subtask subtask : subtasks) {
@@ -126,7 +133,7 @@ public class Epic extends Task{
                 }
             }
         }
-        if(start != null) {
+        if (start != null) {
             setStartTime(start);
         }
     }
@@ -144,21 +151,21 @@ public class Epic extends Task{
     public void timeCalculationEnd() {
 
         LocalDateTime end = getEndTime();
-        if (end != null) {
+        if (end != null) { //если дата старта указана, то надо поискать сабтаск с датой старта пораньше
             for (Subtask subtask : subtasks) {
                 if ((subtask.getEndTime() != null) && (subtask.getEndTime().isAfter(end))) {
                     end = subtask.getEndTime();
                 }
             }
-        } else {
-            for (Subtask subtask : subtasks) {
+        } else { //если не указана, то присвоить дату старта первого заполненного сабтаска, в таком случае
+            for (Subtask subtask : subtasks) { // в следующий раз мы окажемся в верхней ветке.
                 if (subtask.getEndTime() != null) {
                     end = subtask.getEndTime();
                     break;
                 }
             }
         }
-        if(end != null) {
+        if (end != null) {
             setEndTime(end);
         }
     }

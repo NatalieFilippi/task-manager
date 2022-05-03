@@ -87,7 +87,7 @@ public class Subtask extends Task{
 
         String[] split = line.split(",");
 
-        Subtask newSubtask = new Subtask(split[2], split[4], TaskStatus.getStatus(split[3]),Long.parseLong(split[5]));
+        Subtask newSubtask = new Subtask(split[2], split[4], TaskStatus.valueOf(split[3]),Long.parseLong(split[5]));
         newSubtask.setId(Long.parseLong(split[0]));
         if (!split[6].equals("-"))  {
             newSubtask.setStartTime(LocalDateTime.parse(split[6]));
