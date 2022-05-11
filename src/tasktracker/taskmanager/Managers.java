@@ -2,11 +2,13 @@ package tasktracker.taskmanager;
 import historymanager.HistoryManager;
 import historymanager.InMemoryHistoryManager;
 
+import java.io.File;
+
 
 public class Managers {
-
+    private static final String PATH = "resources" + File.separator + "task manager.csv";
+    private static final String url = "http://localhost:8078/";
     private static HistoryManager historyManager = new InMemoryHistoryManager();
-    private static TaskManager taskManager = new InMemoryTaskManager();
 
     private Managers() {
     }
@@ -16,7 +18,7 @@ public class Managers {
     }
 
     public static TaskManager getDefault() {
-        return taskManager;
+        return new HTTPTaskManager(url);
     }
 
 }

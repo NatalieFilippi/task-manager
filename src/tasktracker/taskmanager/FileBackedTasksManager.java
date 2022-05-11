@@ -19,6 +19,11 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
 
     private static final String PATH = "resources" + File.separator + "task manager.csv";
     private File fileBacked;
+    private String url;
+
+    public FileBackedTasksManager(String url) {
+        this.url = url;
+    }
 
     public FileBackedTasksManager(File fileBacked) {
 
@@ -26,7 +31,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         if (fileBacked.exists()) {
             loadFromFile();
         }
-
 
     }
 
@@ -117,7 +121,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         return  str.contains("TASK") || str.contains("EPIC") || str.contains("SUBTASK");
     }
 
-    private void save() {
+    protected void save() {
 
         try (Writer fileWriter = new FileWriter(fileBacked)) {
 

@@ -1,15 +1,31 @@
 package tasktracker.taskmanager;
 
 
+import httpserver.HttpTaskServer;
+import httpserver.KVServer;
 import tasktracker.TaskStatus;
 import tasktracker.tasks.Epic;
 import tasktracker.tasks.Subtask;
 import tasktracker.tasks.Task;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
 public class Main {
-    public static void main(String[] args) {
-        TaskManager taskManager = Managers.getDefault();
-        //InMemoryTaskManager taskManager = new InMemoryTaskManager();
+    public static void main(String[] args) throws IOException, InterruptedException {
+        new KVServer().start();
+        new HttpTaskServer();
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/task/?id=1");
+        HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+
+        /*TaskManager taskManager = Managers.getDefault();
         //создаём 2 простые задачи
         Task task1 = new Task("Записать Катю к врачу",
                 "Надо по телефону, сайт не работает", TaskStatus.NEW);
@@ -47,7 +63,7 @@ public class Main {
 
 
         //проверим историю
-        System.out.println("~~~~~~~~~~~~~~~~~Проверим историю~~~~~~~~~~~~~~~~~~~~~");
+        /*System.out.println("~~~~~~~~~~~~~~~~~Проверим историю~~~~~~~~~~~~~~~~~~~~~");
         taskManager.getTaskById(1);
         taskManager.getEpicByID(3);
         taskManager.getSubtaskByID(4);
@@ -72,7 +88,7 @@ public class Main {
 
         System.out.println("~~~~~Удалить эпик~~~");
         taskManager.deleteByIDEpic(3);
-        taskManager.printHistory();
+        taskManager.printHistory();*/
 
     }
 }
