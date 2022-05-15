@@ -1,16 +1,21 @@
 package test.test;
 
+import httpserver.HttpTaskServer;
+import httpserver.KVServer;
+import httpserver.KVTaskClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import tasktracker.TaskStatus;
 import tasktracker.taskmanager.FileBackedTasksManager;
+import tasktracker.taskmanager.HTTPTaskManager;
 import tasktracker.taskmanager.TaskManager;
 import tasktracker.tasks.Epic;
 import tasktracker.tasks.Subtask;
 import tasktracker.tasks.Task;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -21,9 +26,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public abstract class TaskManagerTest<T extends TaskManager> {
     protected T taskManager;
 
-    public TaskManagerTest(T taskManager) {
+    public TaskManagerTest(T taskManager) throws IOException {
         this.taskManager = taskManager;
     }
+
     private static Epic epic;
     private static Task task1;
     private static Task task2;
@@ -31,10 +37,12 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     private static Task taskNull;
     private static Subtask s1;
     private static Subtask s2;
+    private static KVServer kvServer;
+    private HttpTaskServer httpTaskServer;
+    private KVTaskClient kvTaskClient;
 
     @BeforeEach
-    void beforeEach() {
-
+    void beforeEach() throws IOException {
         epic = new Epic("Epic", "Test addNewEpic description");
         task1 = new Task("Task 1", "Test 1 addNewTask description", TaskStatus.NEW,
                 Duration.ofHours(5).plus(Duration.ofMinutes(20)),
@@ -50,6 +58,11 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskNull = new Task("Task 4", "Test 4 addNewTask description", TaskStatus.NEW);
         s1 = new Subtask("Subtask 1", "subtask test 1", TaskStatus.NEW, 1);
         s2 = new Subtask("Subtask 2", "subtask test 2", TaskStatus.NEW, 1);
+
+        kvServer = new KVServer();
+        kvServer.start();
+        httpTaskServer = new HttpTaskServer();
+        kvTaskClient = new KVTaskClient("http://localhost:8078/");
     }
 
     @AfterEach
@@ -57,10 +70,13 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.deleteAllTasks();
         taskManager.deleteAllEpics();
         taskManager.deleteAllSubtasks();
+        kvServer.stop();
+        httpTaskServer.stop();
     }
 
     @Test
     void addNewTask() {
+
         taskManager.createTask(task1);
         taskManager.createTask(task2);
         final Task savedTask = taskManager.getTaskById(task1.getId());

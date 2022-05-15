@@ -1,5 +1,7 @@
 package httpserver;
 
+import tasktracker.taskmanager.ManagerSaveException;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -8,12 +10,16 @@ import java.net.http.HttpResponse;
 
 public class KVTaskClient {
     private final String url;
-    private String apiKey;
-    private HttpClient client;
+    private final String apiKey;
+    private final HttpClient client;
 
     public KVTaskClient(String url) {
         this.url = url;
         this.client = HttpClient.newHttpClient();
+        apiKey = register();
+    }
+
+    private String register() {
         URI uri = URI.create(url + "register");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
@@ -24,15 +30,14 @@ public class KVTaskClient {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             // проверяем, успешно ли обработан запрос
             if (response.statusCode() == 200) {
-                this.apiKey = response.body();
+                return response.body();
             }
 
         } catch (IOException | InterruptedException e) { // обрабатываем ошибки отправки запроса
             System.out.println("Во время выполнения запроса возникла ошибка.\n" +
                     "Проверьте, пожалуйста, адрес и повторите попытку.");
         }
-
-
+        return null;
     }
 
     public void put(String key, String json) {
@@ -45,8 +50,8 @@ public class KVTaskClient {
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException e) { // обрабатываем ошибки отправки запроса
-                System.out.println("Во время выполнения запроса возникла ошибка.\n" +
-                        "Проверьте, пожалуйста, адрес и повторите попытку.");
+            throw new ManagerSaveException("Во время выполнения запроса возникла ошибка.\n" +
+                    "Проверьте, пожалуйста, адрес и повторите попытку.");
         }
 
     }
@@ -64,7 +69,7 @@ public class KVTaskClient {
                 return response.body();
             }
         } catch (IOException | InterruptedException e) { // обрабатываем ошибки отправки запроса
-            System.out.println("Во время выполнения запроса возникла ошибка.\n" +
+            throw new ManagerSaveException("Во время выполнения запроса возникла ошибка.\n" +
                     "Проверьте, пожалуйста, адрес и повторите попытку.");
         }
         return null;

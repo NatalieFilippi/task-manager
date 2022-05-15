@@ -19,26 +19,27 @@ import java.nio.charset.StandardCharsets;
 public class HttpTaskServer {
 
     private static final int PORT = 8080;
-    private HttpServer httpServer;
+    private final HttpServer httpServer;
     private static Gson gson = new Gson();
-    public static TaskManager taskManager;
+    private static TaskManager taskManager;
     private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
     public HttpTaskServer() throws IOException {
         taskManager = Managers.getDefault();
         this.httpServer = HttpServer.create();
         httpServer.bind(new InetSocketAddress(PORT), 0);
-        httpServer.createContext("/tasks/task", new Tasks());
-        httpServer.createContext("/tasks/epic", new Epics());
-        httpServer.createContext("/tasks/subtask", new Subtasks());
+        httpServer.createContext("/tasks/task", new TaskHandler());
+        httpServer.createContext("/tasks/epic", new EpicHandler());
+        httpServer.createContext("/tasks/subtask", new SubtaskHandler());
 
         httpServer.createContext("/tasks/history", new History());
 
+        System.out.println("Запускаем сервер на порту " + PORT);
         httpServer.start(); // запускаем сервер
     }
 
 
-    class Tasks implements HttpHandler {
+    class TaskHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
 
@@ -83,7 +84,7 @@ public class HttpTaskServer {
             }
         }
     }
-    class Epics implements HttpHandler {
+    class EpicHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
             String response = "";
@@ -128,7 +129,7 @@ public class HttpTaskServer {
         }
     }
 
-    class Subtasks implements HttpHandler {
+    class SubtaskHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
             String response = "";

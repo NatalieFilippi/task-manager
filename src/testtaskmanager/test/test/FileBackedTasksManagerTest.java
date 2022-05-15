@@ -8,6 +8,7 @@ import tasktracker.tasks.Epic;
 import tasktracker.tasks.Subtask;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -16,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FileBackedTasksManagerTest extends TaskManagerTest{
 
-    public FileBackedTasksManagerTest() {
+    public FileBackedTasksManagerTest() throws IOException {
         super(new FileBackedTasksManager(fileEmpty));
     }
     final static File fileEmpty = new File("resources" + File.separator + "task manager empty test.csv");

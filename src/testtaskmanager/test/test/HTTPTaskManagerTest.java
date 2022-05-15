@@ -30,21 +30,21 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
 
-class HTTPTaskManagerTest {
+class HTTPTaskManagerTest{
 
     private static Task task1 = new Task("Task 1", "Test 1 description", TaskStatus.NEW,
                                        Duration.ofHours(5).plus(Duration.ofMinutes(20)),
             LocalDateTime.of(2022, Month.NOVEMBER,14,12,00));
     private static Epic epic1 = new Epic("Epic1", "Test 1 description");
     private static Subtask s1 = new Subtask("Subtask 1", "subtask test 1", TaskStatus.NEW, 1);
-    HttpClient client = HttpClient.newHttpClient();
-    Gson gson = new Gson();
+    private static final HttpClient client = HttpClient.newHttpClient();
+    private static final Gson gson = new Gson();
     private static KVServer kvServer;
     private HttpTaskServer httpTaskServer;
     private KVTaskClient kvTaskClient;
 
     @BeforeEach
-    void beforeEach() throws IOException {
+    protected void beforeEach() throws IOException {
         kvServer = new KVServer();
         kvServer.start();
         httpTaskServer = new HttpTaskServer();
@@ -52,13 +52,13 @@ class HTTPTaskManagerTest {
     }
 
     @AfterEach
-    void afterEach() throws IOException {
+    private void afterEach() throws IOException {
         kvServer.stop();
         httpTaskServer.stop();
     }
 
     @Test
-    void checkTask() throws IOException, InterruptedException {
+    private void checkTask() throws IOException, InterruptedException {
         System.out.println("Тестируем таски");
         //проверяем POST
         URI url = URI.create("http://localhost:8080/tasks/task/");
@@ -94,7 +94,7 @@ class HTTPTaskManagerTest {
     }
 
     @Test
-    void checkEpic() throws IOException, InterruptedException {
+    private void checkEpic() throws IOException, InterruptedException {
         System.out.println("Тестируем эпики");
         //проверяем POST
         URI url = URI.create("http://localhost:8080/tasks/epic/");
@@ -132,7 +132,7 @@ class HTTPTaskManagerTest {
     }
 
     @Test
-    void checkSubtask() throws IOException, InterruptedException {
+    private void checkSubtask() throws IOException, InterruptedException {
         System.out.println("Тестируем сабтаски");
         //проверяем POST
         URI url = URI.create("http://localhost:8080/tasks/epic/");
@@ -175,7 +175,7 @@ class HTTPTaskManagerTest {
     }
 
     @Test
-    void checkHistory() throws IOException, InterruptedException {
+    private void checkHistory() throws IOException, InterruptedException {
         TaskManager taskManager = Managers.getDefault();
 
         taskManager.createEpic(epic1);
